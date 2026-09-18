@@ -52,7 +52,9 @@
 
   const sorted = $derived.by(() => {
     const keys = sortKeys(data, sort.key, { maxTags: settings.maxTags });
-    return sortRowsByKeys(filtered === rows ? rows.slice() : filtered, keys, sort.desc);
+    // Always sort a copy: sorting in place would keep the same array reference,
+    // so the derived wouldn't signal a change and on-screen rows would go stale.
+    return sortRowsByKeys(filtered.slice(), keys, sort.desc);
   });
 
   const visibleCols = $derived(COLUMNS.filter((c) => !columnPrefs.hidden.includes(c.id) || c.id === 'name'));
