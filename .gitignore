@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.csv
+.DS_Store
+.claude
+.github

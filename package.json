@@ -1,0 +1,30 @@
+{
+  "name": "steam-tags",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "size": "node scripts/check_size.mjs",
+    "data": "uv run --python 3.14 scripts/build_data.py"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "fzstd": "^0.1.1",
+    "idb-keyval": "^6.3.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@tsconfig/svelte": "^5.0.8",
+    "@types/node": "^24.0.0",
+    "svelte": "^5.57.0",
+    "svelte-check": "^4.7.6",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}
