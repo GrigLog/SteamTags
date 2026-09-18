@@ -2,16 +2,36 @@ import { readFileSync } from 'node:fs';
 import { decompress } from 'fzstd';
 import { decode, type GameData, type Manifest } from '../src/lib/data/dataset';
 
-let cached: GameData | undefined;
+const cache = new Map<string, GameData>();
 
-/** Decodes the committed data file (public/data) once per test run. */
-export function loadRealData(): GameData {
-  if (!cached) {
-    const manifest = JSON.parse(readFileSync('public/data/manifest.json', 'utf8')) as Manifest;
-    const bytes = new Uint8Array(readFileSync(`public/data/${manifest.file}`));
-    cached = decode(decompress(bytes));
+function loadDir(dir: string): GameData {
+  let d = cache.get(dir);
+  if (!d) {
+    const manifest = JSON.parse(readFileSync(`${dir}/manifest.json`, 'utf8')) as Manifest;
+    d = decode(decompress(new Uint8Array(readFileSync(`${dir}/${manifest.file}`))));
+    cache.set(dir, d);
   }
-  return cached;
+  return d;
+}
+
+/**
+ * The published dataset (public/data). It changes with every data update, so tests on it may only
+ * check properties that hold for any dataset — never exact counts or specific games' values.
+ */
+export function loadRealData(): GameData {
+  return loadDir('public/data');
+}
+
+export function realManifest(): Manifest {
+  return JSON.parse(readFileSync('public/data/manifest.json', 'utf8')) as Manifest;
+}
+
+/**
+ * A frozen 9-row sample (tests/fixtures/games.csv) built with scripts/build_data.py, for exact-value
+ * tests. Rebuild after changing the data format: npm run fixture
+ */
+export function loadFixture(): GameData {
+  return loadDir('tests/fixtures/data');
 }
 
 export function rowOf(d: GameData, appid: number): number {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CHEBYSHEV_K, computeUtilitySync, halfWidth, type UtilityParams, type UtilityResult } from '../src/lib/compute/utility';
 import { loadRealData, makeData } from './helpers';
+import { tagEnd } from '../src/lib/data/dataset';
 
 const toy = makeData([
   { tags: ['A', 'B'], total: 10 },
@@ -64,13 +65,26 @@ describe('utility ranking', () => {
     expect(computeUtilitySync(toy, { ...base, includeFree: true }).sampleSize).toBe(5);
   });
 
-  it('runs on the real dataset', () => {
+  // The published dataset changes with every update: only check invariants here.
+  it('runs on the published dataset', () => {
     const d = loadRealData();
+    let paid = 0;
+    let paidNoPrice = 0;
+    let tagSlots = 0;
+    for (let i = 0; i < d.n; i++) {
+      if (d.isFree[i]) continue;
+      paid++;
+      if (Number.isNaN(d.revenue[i])) paidNoPrice++;
+      tagSlots += tagEnd(d, i, 20) - d.tagOff[i];
+    }
     const tags = computeUtilitySync(d, { ...base, fn: 'log' });
-    expect(tags.sampleSize).toBe(111004);
-    expect(tags.count.length).toBeGreaterThan(400);
+    expect(tags.sampleSize).toBe(paid);
+    expect(tags.skipped).toBe(0);
+    expect(tags.count.reduce((a, b) => a + b, 0)).toBe(tagSlots);
+    expect(Math.max(...tags.a)).toBeLessThan(d.tagNames.length);
     const pairs = computeUtilitySync(d, { ...base, mode: 'pair', metric: 'revenue', fn: 'log' });
-    expect(pairs.skipped).toBe(365); // paid games without a price
-    expect(pairs.count.length).toBeGreaterThan(40000);
+    expect(pairs.skipped).toBe(paidNoPrice);
+    expect(pairs.sampleSize).toBe(paid - paidNoPrice);
+    for (let j = 0; j < pairs.count.length; j++) if (pairs.a[j] >= pairs.b[j]) throw new Error('pair not ordered');
   });
 });

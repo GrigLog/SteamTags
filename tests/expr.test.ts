@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { applyFilter, compileFilter, compileNumber, ExprError, type CompileEnv } from '../src/lib/expr/compile';
 import { parse } from '../src/lib/expr/parser';
 import { baseRows } from '../src/lib/data/dataset';
-import { loadRealData, rowOf } from './helpers';
+import { loadFixture, rowOf } from './helpers';
 
-const d = loadRealData();
+const d = loadFixture();
 const env: CompileEnv = { data: d, ctx: { maxTags: 20 } };
 const cs = rowOf(d, 10); // Counter-Strike
 const hl = rowOf(d, 70); // Half-Life
@@ -118,8 +118,9 @@ describe('compiler', () => {
 
   it('returns null for an empty filter and filters rows', () => {
     expect(compileFilter('   ', env)).toBeNull();
-    const rows = applyFilter(baseRows(d, true), where("tags has 'Roguelike' and reviews > 1000"));
-    expect(rows.length).toBeGreaterThan(100);
-    for (const i of rows.subarray(0, 50)) expect(d.total[i]).toBeGreaterThan(1000);
+    const ids = (src: string) => Array.from(applyFilter(baseRows(d, true), where(src)), (i) => d.appid[i]);
+    expect(ids("tags has 'Roguelike' and reviews > 1000")).toEqual([200210]);
+    expect(ids("tags has 'FPS'")).toEqual([10, 70]);
+    expect(ids('release_date is null')).toEqual([11180]);
   });
 });

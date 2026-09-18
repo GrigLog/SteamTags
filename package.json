@@ -10,7 +10,8 @@
     "test": "vitest run",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "size": "node scripts/check_size.mjs",
-    "data": "uv run --python 3.14 scripts/build_data.py"
+    "data": "uv run --python 3.14 scripts/build_data.py",
+    "fixture": "uv run --python 3.14 scripts/build_data.py tests/fixtures/games.csv --out tests/fixtures/data"
   },
   "dependencies": {
     "chart.js": "^4.5.1",

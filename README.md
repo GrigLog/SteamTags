@@ -41,10 +41,15 @@ Browsers keep the data file in Cache Storage and computed results in IndexedDB. 
 npm install
 npm run dev      # http://localhost:5173
 npm test         # unit tests (decoder, query language, utility math, dynamics)
+npm run fixture  # rebuild the test fixture after changing scripts/build_data.py
 npm run check    # type check
 npm run build    # production build in dist/
 npm run size     # fails if dist/ exceeds 10 MB
 ```
+
+### Tests and the dataset
+
+Tests that check exact values use a frozen 9-row sample, `tests/fixtures/games.csv`, and its built binary in `tests/fixtures/data`. Tests on the published dataset in `public/data` only check properties that hold for any data, so updating the dataset never breaks them. If you change the binary format in `scripts/build_data.py`, run `npm run fixture` and commit the result.
 
 ## Deploying
 

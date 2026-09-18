@@ -3,3 +3,4 @@ dist/
 *.csv
 .DS_Store
 .claude
+!tests/fixtures/*.csv
